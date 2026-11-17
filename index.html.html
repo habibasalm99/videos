@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ChhotiReel – Achi Achi Videos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#2438e0;--deep:#16217f;--ink:#101637;--paper:#f7f6ff;--pink:#ff6b9d;--sun:#ffd23f}
+*{box-sizing:border-box;margin:0}
+body{font-family:Figtree,system-ui,sans-serif;background:var(--blue);color:#fff;line-height:1.5}
+h1,h2,h3,.logo{font-family:'Bricolage Grotesque',Impact,sans-serif}
+.wrap{max-width:1160px;margin:0 auto;padding:0 20px}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 0}
+.logo{font-weight:800;font-size:1.5rem}
+.logo span{background:var(--sun);color:var(--ink);padding:0 8px;border-radius:8px;margin-left:4px}
+.hero{padding:40px 0 56px;display:grid;grid-template-columns:1.2fr 1fr;gap:32px;align-items:center}
+.hero h1{font-size:clamp(2.6rem,7vw,5.2rem);line-height:.98;font-weight:800;letter-spacing:-.03em}
+.hero h1 em{font-style:normal;background:var(--pink);color:var(--ink);padding:0 .15em;border-radius:.15em;display:inline-block;transform:rotate(-2deg)}
+.hero p{margin:18px 0 24px;max-width:46ch;font-size:1.1rem;opacity:.9}
+.btn{background:var(--sun);color:var(--ink);border:0;font:700 1rem Figtree;padding:14px 26px;border-radius:999px;cursor:pointer}
+.btn:hover{background:#fff}
+.feature{position:relative;aspect-ratio:16/10;border-radius:28px;overflow:hidden;cursor:pointer;border:4px solid #fff;transform:rotate(2deg);box-shadow:12px 12px 0 var(--deep)}
+.feature img{width:100%;height:100%;object-fit:cover}
+.play{position:absolute;inset:0;margin:auto;width:76px;height:76px;border-radius:50%;background:var(--sun);display:grid;place-items:center}
+.play::after{content:"";border-left:24px solid var(--ink);border-top:14px solid transparent;border-bottom:14px solid transparent;margin-left:6px}
+.tools{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:24px}
+.chip{background:transparent;color:#fff;border:2px solid #fff;font:600 .95rem Figtree;padding:8px 20px;border-radius:999px;cursor:pointer}
+.chip.on{background:#fff;color:var(--blue)}
+input{flex:1;min-width:180px;max-width:320px;margin-left:auto;padding:11px 18px;border-radius:999px;border:0;font:1rem Figtree;background:var(--paper);color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px;padding-bottom:64px}
+.card{background:var(--paper);color:var(--ink);border-radius:20px;overflow:hidden;cursor:pointer;text-align:left;border:0;font:inherit;transition:transform .15s}
+.card:hover{transform:translateY(-4px)}
+.thumb{position:relative;aspect-ratio:16/9;background:var(--deep)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.badge{position:absolute;right:10px;bottom:10px;background:var(--ink);color:#fff;font-size:.8rem;font-weight:600;padding:3px 10px;border-radius:999px}
+.badge.s{background:var(--pink);color:var(--ink)}
+.card h3{font-size:1.1rem;padding:14px 16px 4px;line-height:1.25}
+.card p{padding:0 16px 16px;font-size:.9rem;opacity:.7}
+.empty{grid-column:1/-1;text-align:center;padding:40px;font-size:1.1rem}
+footer{background:var(--deep);padding:28px 0;text-align:center;font-size:.9rem}
+.modal{position:fixed;inset:0;background:rgba(10,14,50,.92);display:none;place-items:center;padding:16px;z-index:9}
+.modal.open{display:grid}
+.box{width:min(960px,100%)}
+.box .frame{aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden}
+.frame iframe,.frame video{width:100%;height:100%;border:0}
+.bar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:12px}
+.bar h2{font-size:1.2rem}
+:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+@media(max-width:800px){.hero{grid-template-columns:1fr}.feature{transform:none}input{margin-left:0;max-width:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><div class="logo">Chhoti<span>Reel</span></div></header>
+  <section class="hero">
+    <div>
+      <h1>Chhoti videos. <em>Badi</em> masti.</h1>
+      <p>Kuch short videos, kuch 2 minute wali. Jo pasand aaye wo chalao, aur seedha dekho.</p>
+      <button class="btn" id="go">Abhi dekho</button>
+    </div>
+    <div class="feature" id="feat" role="button" tabindex="0" aria-label="Featured video chalao"></div>
+  </section>
+  <section id="list">
+    <div class="tools">
+      <button class="chip on" data-f="all">Sab</button>
+      <button class="chip" data-f="short">Short</button>
+      <button class="chip" data-f="long">Long</button>
+      <input id="q" type="search" placeholder="Video dhundo…" aria-label="Video dhundo">
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+</div>
+<footer>© ChhotiReel · Videos YouTube se chalte hain</footer>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="box">
+    <div class="frame" id="frame"></div>
+    <div class="bar"><h2 id="mt"></h2><button class="btn" id="close">Band karo</button></div>
+  </div>
+</div>
+
+<script>
+/* ===== VIDEOS YAHAN BADLO / ADD KARO =====
+   YouTube video: { id:"YOUTUBE_ID", title:"...", desc:"...", type:"short" ya "long", dur:"0:19" }
+   YouTube link me ?v= ke baad wala hissa ID hota hai.
+   Apni mp4 file: { src:"videos/meri.mp4", thumb:"videos/meri.jpg", title:"...", ... } (file repo me daalo, 100MB se chhoti) */
+const VIDEOS=[
+  {id:"jNQXAC9IVRw",title:"Me at the zoo",desc:"YouTube ki sabse pehli video",type:"short",dur:"0:19"},
+  {id:"aqz-KE-bpKQ",title:"Big Buck Bunny",desc:"Mazedaar animation film",type:"long",dur:"10:34"},
+  {id:"YE7VzlLtp-4",title:"Big Buck Bunny (HD)",desc:"Khargosh ki kahani",type:"long",dur:"9:56"}
+];
+const $=s=>document.querySelector(s);
+const thumb=v=>v.thumb||`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`;
+let f="all";
+function render(){
+  const q=$("#q").value.trim().toLowerCase();
+  const items=VIDEOS.map((v,i)=>({v,i})).filter(({v})=>(f=="all"||v.type==f)&&(v.title+" "+v.desc).toLowerCase().includes(q));
+  $("#grid").innerHTML=items.length?items.map(({v,i})=>`<button class="card" data-i="${i}"><div class="thumb"><img loading="lazy" src="${thumb(v)}" alt=""><span class="badge ${v.type=="short"?"s":""}">${v.type=="short"?"Short":"Long"} · ${v.dur}</span></div><h3>${v.title}</h3><p>${v.desc}</p></button>`).join(""):`<p class="empty">Koi video nahi mili.</p>`;
+}
+function open(i){
+  const v=VIDEOS[i];
+  $("#frame").innerHTML=v.src?`<video src="${v.src}" controls autoplay playsinline></video>`:`<iframe src="https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="${v.title}"></iframe>`;
+  $("#mt").textContent=v.title;$("#modal").classList.add("open");$("#close").focus();
+}
+function shut(){$("#modal").classList.remove("open");$("#frame").innerHTML=""}
+$("#grid").addEventListener("click",e=>{const c=e.target.closest(".card");if(c)open(+c.dataset.i)});
+document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));b.classList.add("on");f=b.dataset.f;render()});
+$("#q").oninput=render;$("#close").onclick=shut;
+$("#modal").addEventListener("click",e=>{if(e.target.id=="modal")shut()});
+document.addEventListener("keydown",e=>{if(e.key=="Escape")shut()});
+$("#go").onclick=()=>$("#list").scrollIntoView({behavior:"smooth"});
+const F=VIDEOS[1]||VIDEOS[0];
+$("#feat").innerHTML=`<img src="${thumb(F)}" alt=""><div class="play"></div>`;
+$("#feat").onclick=()=>open(VIDEOS.indexOf(F));
+$("#feat").onkeydown=e=>{if(e.key=="Enter")open(VIDEOS.indexOf(F))};
+render();
+</script>
+</body>
+</html>
