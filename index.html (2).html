@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReelWala – Short aur Long Videos</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d3b3a;--deep:#082625;--tom:#ff5a36;--paper:#fff8ee;--ink:#10201f}
+*{box-sizing:border-box;margin:0}
+body{font-family:Figtree,system-ui,sans-serif;background:var(--bg);color:#fff;line-height:1.5}
+h1,h2,h3,.logo{font-family:'Bricolage Grotesque',Impact,sans-serif}
+.wrap{max-width:1160px;margin:0 auto;padding:0 20px}
+header{padding:20px 0}
+.logo{font-weight:800;font-size:1.6rem}
+.logo b{color:var(--tom)}
+.hero{padding:28px 0 20px}
+.hero h1{font-size:clamp(2.4rem,6.5vw,4.6rem);line-height:1;font-weight:800;letter-spacing:-.03em;max-width:14ch}
+.hero p{margin-top:14px;max-width:48ch;opacity:.85}
+.ad{display:flex;justify-content:center;margin:20px 0;min-height:10px;overflow:hidden}
+.tools{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 22px}
+.chip{background:transparent;color:#fff;border:2px solid var(--tom);font:600 .95rem Figtree;padding:8px 20px;border-radius:999px;cursor:pointer}
+.chip.on{background:var(--tom);color:#fff}
+input{flex:1;min-width:180px;max-width:300px;margin-left:auto;padding:10px 18px;border-radius:999px;border:0;font:1rem Figtree;background:var(--paper);color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px}
+.card{background:var(--paper);color:var(--ink);border-radius:18px;overflow:hidden;cursor:pointer;text-align:left;border:0;font:inherit}
+.card:hover .thumb::after{opacity:1}
+.thumb{position:relative;aspect-ratio:16/9;background:var(--deep)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb::after{content:"▶";position:absolute;inset:0;display:grid;place-items:center;font-size:2.4rem;color:#fff;background:rgba(8,38,37,.45);opacity:0;transition:opacity .15s}
+.badge{position:absolute;right:10px;bottom:10px;z-index:1;background:var(--ink);color:#fff;font-size:.8rem;font-weight:600;padding:3px 10px;border-radius:999px}
+.badge.s{background:var(--tom)}
+.card h3{font-size:1.08rem;padding:12px 16px 2px;line-height:1.25}
+.card p{padding:0 16px 14px;font-size:.9rem;opacity:.7}
+.empty{grid-column:1/-1;text-align:center;padding:40px}
+footer{margin-top:40px;background:var(--deep);padding:26px 0;text-align:center;font-size:.9rem}
+.modal{position:fixed;inset:0;background:rgba(4,18,18,.94);display:none;place-items:center;padding:16px;z-index:9;overflow:auto}
+.modal.open{display:grid}
+.box{width:min(960px,100%)}
+.frame{position:relative;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden}
+.frame video{width:100%;height:100%;display:block;background:#000}
+#adc{position:absolute;inset:0;z-index:2}
+.bar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:12px 0}
+.bar h2{font-size:1.2rem}
+.btn{background:var(--tom);color:#fff;border:0;font:700 1rem Figtree;padding:11px 22px;border-radius:999px;cursor:pointer}
+:focus-visible{outline:3px solid #ffd23f;outline-offset:3px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><div class="logo">Reel<b>Wala</b></div></header>
+  <section class="hero">
+    <h1>Achi achi videos, ek jagah.</h1>
+    <p>Chhoti reels aur lambi videos. Jo pasand aaye wo chalao.</p>
+  </section>
+
+  <!-- BANNER AD 1 -->
+  <div class="ad"><ins class="eas6a97888e37" data-zoneid="6032596"></ins></div>
+
+  <div class="tools">
+    <button class="chip on" data-f="all">Sab</button>
+    <button class="chip" data-f="short">Short</button>
+    <button class="chip" data-f="long">Long</button>
+    <input id="q" type="search" placeholder="Video dhundo…" aria-label="Video dhundo">
+  </div>
+  <div class="grid" id="grid"></div>
+
+  <!-- BANNER AD 2 -->
+  <div class="ad"><ins class="eas6a97888e37" data-zoneid="6032596"></ins></div>
+</div>
+<footer>© ReelWala</footer>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="box">
+    <div class="frame">
+      <video id="vid" controls playsinline preload="none"></video>
+      <div id="adc"></div>
+    </div>
+    <div class="bar"><h2 id="mt"></h2><button class="btn" id="close">Band karo</button></div>
+  </div>
+</div>
+
+<script async src="https://a.magsrv.com/ad-provider.js"></script>
+<script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
+<script>
+/* ===== VIDEO ADS (VAST) – pehla tag try hota hai, na chale to agla ===== */
+const VAST_TAGS=[
+  "https://s.magsrv.com/v1/vast.php?idzone=6032598",
+  "https://s.magsrv.com/v1/vast.php?idz=6032592"
+];
+
+/* ===== VIDEOS – yahan apni videos add karo =====
+   src = mp4 ka link (ya repo ke videos/ folder ki file, jaise "videos/meri.mp4")
+   thumb = photo ka link (ya "videos/meri.jpg") */
+const G="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/";
+const VIDEOS=[
+  {title:"Blazes",desc:"Chhoti si mazedaar clip",type:"short",dur:"0:15",src:G+"ForBiggerBlazes.mp4",thumb:G+"images/ForBiggerBlazes.jpg"},
+  {title:"Escapes",desc:"Action wali short",type:"short",dur:"0:15",src:G+"ForBiggerEscapes.mp4",thumb:G+"images/ForBiggerEscapes.jpg"},
+  {title:"Fun",desc:"Masti bhari reel",type:"short",dur:"0:60",src:G+"ForBiggerFun.mp4",thumb:G+"images/ForBiggerFun.jpg"},
+  {title:"Joyrides",desc:"Sair ka maza",type:"short",dur:"0:15",src:G+"ForBiggerJoyrides.mp4",thumb:G+"images/ForBiggerJoyrides.jpg"},
+  {title:"Meltdowns",desc:"Dhamakedar short",type:"short",dur:"0:15",src:G+"ForBiggerMeltdowns.mp4",thumb:G+"images/ForBiggerMeltdowns.jpg"},
+  {title:"Big Buck Bunny",desc:"Khargosh ki animation film",type:"long",dur:"10:34",src:G+"BigBuckBunny.mp4",thumb:G+"images/BigBuckBunny.jpg"},
+  {title:"Sintel",desc:"Ek ladki aur dragon ki kahani",type:"long",dur:"14:48",src:G+"Sintel.mp4",thumb:G+"images/Sintel.jpg"},
+  {title:"Tears of Steel",desc:"Sci-fi short film",type:"long",dur:"12:14",src:G+"TearsOfSteel.mp4",thumb:G+"images/TearsOfSteel.jpg"}
+];
+
+const $=s=>document.querySelector(s);
+const vid=$("#vid"),adc=$("#adc");
+let f="all",adsLoader,adsManager,adDC,tagIdx=0,cur,started,timer;
+
+function render(){
+  const q=$("#q").value.trim().toLowerCase();
+  const items=VIDEOS.map((v,i)=>({v,i})).filter(({v})=>(f=="all"||v.type==f)&&(v.title+" "+v.desc).toLowerCase().includes(q));
+  $("#grid").innerHTML=items.length?items.map(({v,i})=>`<button class="card" data-i="${i}"><div class="thumb"><img loading="lazy" src="${v.thumb}" alt="" onerror="this.style.display='none'"><span class="badge ${v.type=="short"?"s":""}">${v.type=="short"?"Short":"Long"} · ${v.dur}</span></div><h3>${v.title}</h3><p>${v.desc}</p></button>`).join(""):`<p class="empty">Koi video nahi mili.</p>`;
+}
+
+function startContent(){
+  if(started)return;started=true;clearTimeout(timer);
+  if(adsManager){try{adsManager.destroy()}catch(e){}adsManager=null}
+  adc.style.display="none";
+  vid.src=cur.src;vid.poster=cur.thumb||"";
+  vid.play().catch(()=>{});
+}
+
+function requestAd(){
+  if(!window.google||!google.ima||tagIdx>=VAST_TAGS.length){startContent();return}
+  const req=new google.ima.AdsRequest();
+  req.adTagUrl=VAST_TAGS[tagIdx];
+  req.linearAdSlotWidth=vid.clientWidth||640;
+  req.linearAdSlotHeight=vid.clientHeight||360;
+  adsLoader.requestAds(req);
+}
+function nextTag(){
+  if(started)return;
+  if(adsManager){try{adsManager.destroy()}catch(e){}adsManager=null}
+  tagIdx++;requestAd();
+}
+
+function setupAds(){
+  adc.style.display="block";adc.innerHTML="";
+  adDC=new google.ima.AdDisplayContainer(adc,vid);
+  adDC.initialize(); /* click ke time hi hona chahiye */
+  adsLoader=new google.ima.AdsLoader(adDC);
+  adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,e=>{
+    clearTimeout(timer);
+    adsManager=e.getAdsManager(vid);
+    const E=google.ima.AdEvent.Type;
+    adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,nextTag);
+    adsManager.addEventListener(E.CONTENT_PAUSE_REQUESTED,()=>vid.pause());
+    adsManager.addEventListener(E.CONTENT_RESUME_REQUESTED,startContent);
+    adsManager.addEventListener(E.ALL_ADS_COMPLETED,startContent);
+    try{
+      adsManager.init(vid.clientWidth,vid.clientHeight,google.ima.ViewMode.NORMAL);
+      adsManager.start();
+    }catch(err){nextTag()}
+  });
+  adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,nextTag);
+}
+
+function openVideo(i){
+  cur=VIDEOS[i];started=false;tagIdx=0;
+  $("#mt").textContent=cur.title;$("#modal").classList.add("open");$("#close").focus();
+  vid.removeAttribute("src");vid.poster=cur.thumb||"";
+  if(window.google&&google.ima){
+    setupAds();requestAd();
+    timer=setTimeout(startContent,8000); /* ad na aaye to video seedha chalegi */
+  }else{adc.style.display="none";startContent()}
+}
+function shut(){
+  started=true;clearTimeout(timer);
+  if(adsManager){try{adsManager.destroy()}catch(e){}adsManager=null}
+  vid.pause();vid.removeAttribute("src");vid.load();
+  $("#modal").classList.remove("open");
+}
+
+$("#grid").addEventListener("click",e=>{const c=e.target.closest(".card");if(c)openVideo(+c.dataset.i)});
+document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));b.classList.add("on");f=b.dataset.f;render()});
+$("#q").oninput=render;$("#close").onclick=shut;
+$("#modal").addEventListener("click",e=>{if(e.target.id=="modal")shut()});
+document.addEventListener("keydown",e=>{if(e.key=="Escape")shut()});
+window.addEventListener("resize",()=>{if(adsManager)try{adsManager.resize(vid.clientWidth,vid.clientHeight,google.ima.ViewMode.NORMAL)}catch(e){}});
+render();
+
+/* banner ads serve karo (2 jagah) */
+(AdProvider=window.AdProvider||[]).push({"serve":{}});
+(AdProvider=window.AdProvider||[]).push({"serve":{}});
+</script>
+</body>
+</html>
